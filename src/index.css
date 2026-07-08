@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-cream text-matcha-900 font-body antialiased;
+  background-image: radial-gradient(circle at 20% 10%, rgba(124, 168, 69, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(166, 124, 82, 0.1), transparent 45%);
+}
+
+/* Script-aware body font so Sinhala/Tamil render with a modern, UI-friendly typeface */
+[lang="si"] {
+  font-family: "Yaldevi", "Inter", sans-serif;
+}
+[lang="ta"] {
+  font-family: "Catamaran", "Inter", sans-serif;
+}
+
+/* Fraunces (the display/heading serif) has no Sinhala or Tamil glyphs, so
+   headings would otherwise silently fall back to a plain system serif for
+   those languages. Use the same modern script fonts for headings too. */
+[lang="si"] .font-display {
+  font-family: "Yaldevi", "Inter", sans-serif;
+}
+[lang="ta"] .font-display {
+  font-family: "Catamaran", "Inter", sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid #5c7a3f;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
