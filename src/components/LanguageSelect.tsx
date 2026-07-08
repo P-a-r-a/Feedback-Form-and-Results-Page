@@ -20,7 +20,7 @@ export function LanguageSelect({ onSelect }: Props) {
       className="mx-auto flex min-h-screen w-full max-w-lg flex-col items-center justify-center px-6 text-center"
     >
       <span className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-bamboo">
-        Matcha Tasting Bar
+        Matcha Feedback Form - teaTel
       </span>
       <h1 className="mb-2 font-display text-4xl font-medium text-matcha-900">
         {questionSets.en.strings.languagePrompt}
@@ -37,11 +37,10 @@ export function LanguageSelect({ onSelect }: Props) {
             transition={{ delay: 0.08 * i, duration: 0.3 }}
           >
             <Card
-              className="flex items-center justify-between px-6 py-5 text-left transition-transform hover:-translate-y-0.5 hover:border-matcha-300"
+              className="flex items-center justify-center gap-4 px-6 py-5 text-center transition-transform hover:-translate-y-0.5 hover:border-matcha-300"
               lang={lang}
             >
-              <span className="font-display text-xl text-matcha-900">{languageLabels[lang]}</span>
-              <span className="text-matcha-400">→</span>
+              <span className="font-display text-xl text-matcha-900 ">{languageLabels[lang]}</span>
             </Card>
           </motion.button>
         ))}

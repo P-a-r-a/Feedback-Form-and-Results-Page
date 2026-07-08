@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Language, Path, Question, Submission } from "@/types";
+import { Language, Question, Submission } from "@/types";
 import { questionSets } from "@/data/questions";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { QuestionCard } from "@/components/QuestionCard";
@@ -13,29 +13,21 @@ type Stage = "language" | "questions" | "submitting" | "thanks" | "error";
 export function FeedbackForm() {
   const [stage, setStage] = useState<Stage>("language");
   const [language, setLanguage] = useState<Language>("en");
-  const [path, setPath] = useState<Path | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [direction, setDirection] = useState(1);
 
   const set = questionSets[language];
 
-  // Every path (A/B/C) has the same number of questions (shared intro +
-  // anchor + branch questions + shared closing questions), so this stays
-  // accurate even before the path is chosen - unlike using steps.length,
-  // which only covers intro + anchor until the first answer picks a branch.
-  const totalSteps = set.intro.length + 1 + set.pathA.length + set.final.length;
-
-  // The full ordered list of questions for the currently selected path.
+  // Combine the linear lists into one flat, sequential workflow
   const steps: Question[] = useMemo(() => {
-    if (!path) return [...set.intro, set.anchor];
-    const branch = path === "A" ? set.pathA : path === "B" ? set.pathB : set.pathC;
-    return [...set.intro, set.anchor, ...branch, ...set.final];
-  }, [path, set]);
+    return [...set.intro, ...set.final];
+  }, [set]);
 
+  const totalSteps = steps.length;
   const currentQuestion = steps[stepIndex];
   const currentValue = answers[currentQuestion?.id] ?? "";
-  const isLast = stepIndex === steps.length - 1;
+  const isLast = stepIndex === totalSteps - 1;
   const canAdvance = currentQuestion?.optional || currentValue.trim().length > 0;
 
   function handleSelectLanguage(lang: Language) {
@@ -45,12 +37,6 @@ export function FeedbackForm() {
 
   function handleAnswer(value: string) {
     setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
-
-    // Determine the branch as soon as the anchor question is answered.
-    if (currentQuestion.id === "anchor" && !path) {
-      const nextPath: Path = value === "yes" ? "A" : value === "no" ? "B" : "C";
-      setPath(nextPath);
-    }
   }
 
   function goNext() {
@@ -76,7 +62,7 @@ export function FeedbackForm() {
     const submission: Submission = {
       id: makeId(),
       language,
-      path: path ?? "C",
+      path: "C", // Kept safe for database backward compatibility 
       answers: Object.entries(answers).map(([questionId, value]) => ({ questionId, value })),
       submittedAt: new Date().toISOString(),
     };
@@ -91,7 +77,6 @@ export function FeedbackForm() {
   function reset() {
     setStage("language");
     setLanguage("en");
-    setPath(null);
     setStepIndex(0);
     setAnswers({});
   }
@@ -157,22 +142,24 @@ export function FeedbackForm() {
 
       <div className="relative w-full">
         <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={currentQuestion.id}
-            custom={direction}
-            initial={{ opacity: 0, x: direction * 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -40 }}
-            transition={{ duration: 0.28, ease: "easeInOut" }}
-          >
-            <QuestionCard
-              question={currentQuestion}
-              strings={set.strings}
-              value={currentValue}
-              onChange={handleAnswer}
-              lang={language}
-            />
-          </motion.div>
+          {currentQuestion && (
+            <motion.div
+              key={currentQuestion.id}
+              custom={direction}
+              initial={{ opacity: 0, x: direction * 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: direction * -40 }}
+              transition={{ duration: 0.28, ease: "easeInOut" }}
+            >
+              <QuestionCard
+                question={currentQuestion}
+                strings={set.strings}
+                value={currentValue}
+                onChange={handleAnswer}
+                lang={language}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
