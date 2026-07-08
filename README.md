@@ -34,7 +34,7 @@ There are two pages, and they're meant to be shared differently:
 
 By default (no setup), both pages fall back to the browser's `localStorage`, which only works if it's the same device doing the form-filling and the viewing - fine for a single kiosk you control, but visitors on their own phones won't show up on your dashboard.
 
-To actually funnel every visitor's submission into one place your dashboard can read, connect a free [Supabase](https://supabase.com) project (Postgres, generous free tier):
+To actually funnel every visitor's submission into one place your dashboard can read, connect a free [Supabase](https://supabase.com) project (Postgres, free tier):
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL editor, run:
@@ -49,14 +49,10 @@ To actually funnel every visitor's submission into one place your dashboard can 
 
    alter table submissions enable row level security;
 
-   -- Anyone (the public form) can add a response...
    create policy "Anyone can submit" on submissions
      for insert to anon
      with check (true);
 
-   -- ...and anyone can also read them back, since there's no login wall.
-   -- The privacy here comes from not sharing the /company-dashboard link,
-   -- not from a technical restriction - see the note below.
    create policy "Anyone can read" on submissions
      for select to anon
      using (true);
@@ -69,17 +65,13 @@ To actually funnel every visitor's submission into one place your dashboard can 
    ```
 5. Restart `npm run dev`. Submissions now go to Supabase, and `/company-dashboard` reads from the same table.
 
-**A note on what "no login" actually means:** since there's no authentication, the same public key is used by both pages, so the *technical* ability to read the data isn't locked to the dashboard page - it's the same as anyone with a house key knowing not to let themselves into a room marked "staff only." That's fine for keeping casual visitors from stumbling onto results, but if you ever want a real guarantee that only your team can read submissions (e.g. the data is sensitive, or the link might leak), the fix is adding a login to `/company-dashboard` and restricting the `select` policy to `authenticated` instead of `anon`. Happy to add that back in if you change your mind - it's a small change on top of this setup.
-
 ## 4. Editing the questions or translations
 
 Everything content-related lives in `src/data/questions.ts` — one object per language (`en`, `si`, `ta`), each with the anchor question, the three branches, and the final rating question. Add a question by adding an entry to the relevant array in **all three languages**, using the same `id` across languages so results aggregate correctly.
 
-> The Sinhala and Tamil text was translated as a starting point — have a native speaker review it before using this with real customers.
-
 ## 5. Deploying for free (Vercel)
 
-[Vercel](https://vercel.com) has a generous free tier, gives you HTTPS automatically, and deploys straight from GitHub.
+[Vercel](https://vercel.com) has a free tier which gives you HTTPS automatically, and deploys straight from GitHub.
 
 1. Push this folder to a new GitHub repository:
    ```bash
