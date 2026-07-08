@@ -20,7 +20,7 @@ export function LanguageSelect({ onSelect }: Props) {
       className="mx-auto flex min-h-screen w-full max-w-lg flex-col items-center justify-center px-6 text-center"
     >
       <span className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-bamboo">
-        Matcha Feedback Form - teaTel
+        Feedback Form
       </span>
       <h1 className="mb-2 font-display text-4xl font-medium text-matcha-900">
         {questionSets.en.strings.languagePrompt}

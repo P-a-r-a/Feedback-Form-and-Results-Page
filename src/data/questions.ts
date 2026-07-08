@@ -7,7 +7,7 @@ import { Language, QuestionSet } from "@/types";
 export const questionSets: Record<Language, QuestionSet> = {
   en: {
     strings: {
-      languagePrompt: "Choose your language",
+      languagePrompt: "Matcha by teaTel",
       languageSubtitle: "Select the language you'd like to use for this feedback form.",
       next: "Next",
       back: "Back",
