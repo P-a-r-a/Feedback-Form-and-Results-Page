@@ -6,7 +6,7 @@ import { questionSets } from "@/data/questions";
 export function allQuestions(): Question[] {
   const en = questionSets.en;
   const seen = new Set<string>();
-  const list: Question[] = [en.anchor, ...en.pathA, ...en.pathB, ...en.pathC, en.final];
+  const list: Question[] = [...en.intro, en.anchor, ...en.pathA, ...en.pathB, ...en.pathC, ...en.final];
   return list.filter((q) => {
     if (seen.has(q.id)) return false;
     seen.add(q.id);

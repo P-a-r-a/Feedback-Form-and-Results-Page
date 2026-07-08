@@ -20,17 +20,17 @@ export function FeedbackForm() {
 
   const set = questionSets[language];
 
-  // Every path (A/B/C) has the same number of questions (anchor + 8 branch
-  // questions + final rating), so this stays accurate even before the path
-  // is chosen - unlike using steps.length, which is only 1 (just the
-  // anchor) until the first answer picks a branch.
-  const totalSteps = 1 + set.pathA.length + 1;
+  // Every path (A/B/C) has the same number of questions (shared intro +
+  // anchor + branch questions + shared closing questions), so this stays
+  // accurate even before the path is chosen - unlike using steps.length,
+  // which only covers intro + anchor until the first answer picks a branch.
+  const totalSteps = set.intro.length + 1 + set.pathA.length + set.final.length;
 
   // The full ordered list of questions for the currently selected path.
   const steps: Question[] = useMemo(() => {
-    if (!path) return [set.anchor];
+    if (!path) return [...set.intro, set.anchor];
     const branch = path === "A" ? set.pathA : path === "B" ? set.pathB : set.pathC;
-    return [set.anchor, ...branch, set.final];
+    return [...set.intro, set.anchor, ...branch, ...set.final];
   }, [path, set]);
 
   const currentQuestion = steps[stepIndex];
