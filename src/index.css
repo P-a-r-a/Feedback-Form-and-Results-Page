@@ -9,9 +9,7 @@ body,
 }
 
 body {
-  @apply bg-cream text-matcha-900 font-body antialiased;
-  background-image: radial-gradient(circle at 20% 10%, rgba(124, 168, 69, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 90%, rgba(166, 124, 82, 0.1), transparent 45%);
+  @apply text-matcha-900 font-body antialiased; /* Keep your theme font configuration */
 }
 
 /* Script-aware body font so Sinhala/Tamil render with a modern, UI-friendly typeface */
@@ -45,4 +43,71 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+.aurora-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+
+  /* Your exact pattern variables and math constraints unchanged */
+  --mx: 0;
+  --my: 0;
+  --a-x: calc(var(--mx) * 8px);
+  --a-y: calc(var(--my) * 8px);
+  --b-x: calc(var(--mx) * -6px);
+  --b-y: calc(var(--my) * -6px);
+  --c-x: calc(var(--mx) * 4px);
+  --c-y: calc(var(--my) * 4px);
+
+  /* Transparent overlay spaces (#0000) preserved.
+     #100f0f lines -> changed to your brand green with 5% opacity (rgba(92, 122, 63, 0.05)).
+     #1e1e1e base background -> changed to your original cream color (#F6F2E7). */
+  background:
+    repeating-linear-gradient(
+        45deg,
+        #0000 calc(-650% / 13) calc(50% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(100% / 13),
+        #0000 0 calc(150% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(200% / 13),
+        #0000 0 calc(250% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(300% / 13)
+      )
+      calc(0px + var(--c-x)) calc(0px + var(--c-y)),
+    repeating-linear-gradient(
+        45deg,
+        #0000 calc(-650% / 13) calc(50% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(100% / 13),
+        #0000 0 calc(150% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(200% / 13),
+        #0000 0 calc(250% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(300% / 13)
+      )
+      calc(32px + var(--a-x)) calc(32px + var(--a-y)),
+    repeating-linear-gradient(
+        -45deg,
+        #0000 calc(-650% / 13) calc(50% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(100% / 13),
+        #0000 0 calc(150% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(200% / 13),
+        #0000 0 calc(250% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(300% / 13)
+      )
+      calc(0px + var(--b-x)) calc(0px + var(--b-y)),
+    repeating-linear-gradient(
+        -45deg,
+        #0000 calc(-650% / 13) calc(50% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(100% / 13),
+        #0000 0 calc(150% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(200% / 13),
+        #0000 0 calc(250% / 13),
+        rgba(92, 122, 63, 0.05) 0 calc(300% / 13)
+      )
+      calc(32px + var(--a-x)) calc(32px + var(--a-y)) #F6F2E7;
+
+  background-size: 64px 64px;
 }

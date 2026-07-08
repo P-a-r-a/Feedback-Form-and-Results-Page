@@ -5,12 +5,16 @@ import { ResultsPage } from "@/pages/ResultsPage";
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public link - give this one to visitors/customers */}
-        <Route path="/" element={<FeedbackForm />} />
-        {/* Private link - only share this with your team, never link to it from the form */}
-        <Route path="/company-dashboard" element={<ResultsPage />} />
-      </Routes>
+      {/* Renders your exact structural pattern background globally */}
+      <div className="aurora-bg" aria-hidden="true" />
+
+      {/* Renders your active layout pages on top */}
+      <div className="relative z-10 w-full min-h-screen">
+        <Routes> {/*[cite: 4] */}
+          <Route path="/" element={<FeedbackForm />} /> {/*[cite: 4] */}
+          <Route path="/company-dashboard" element={<ResultsPage />} /> {/*[cite: 4] */}
+        </Routes> {/*[cite: 4] */}
+      </div>
     </BrowserRouter>
   );
 }
