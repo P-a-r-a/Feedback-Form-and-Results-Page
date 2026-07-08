@@ -36,11 +36,12 @@ export interface LanguageStrings {
 
 export interface QuestionSet {
   strings: LanguageStrings;
+  intro: Question[]; // shown to everyone, before the branching question
   anchor: Question;
   pathA: Question[];
   pathB: Question[];
   pathC: Question[];
-  final: Question;
+  final: Question[]; // shown to everyone, after their path-specific questions
 }
 
 export interface Answer {
