@@ -1,7 +1,5 @@
 export type Language = "en" | "si" | "ta";
 
-export type Path = "A" | "B" | "C"; // A = positive, B = negative, C = neutral
-
 export type QuestionType = "choice" | "yesno" | "text" | "stars";
 
 export interface QuestionOption {
@@ -36,12 +34,16 @@ export interface LanguageStrings {
 
 export interface QuestionSet {
   strings: LanguageStrings;
-  intro: Question[]; // shown to everyone, before the branching question
-  anchor: Question;
-  pathA: Question[];
-  pathB: Question[];
-  pathC: Question[];
-  final: Question[]; // shown to everyone, after their path-specific questions
+  intro: Question[]; // shown to everyone
+  // Legacy branching fields from the old flow. The current question set
+  // doesn't branch, so these are unused (anchor is null, the paths are
+  // empty arrays) but kept optional here so old data/tooling referencing
+  // them doesn't break the type-check.
+  anchor?: Question | null;
+  pathA?: Question[];
+  pathB?: Question[];
+  pathC?: Question[];
+  final: Question[]; // shown to everyone, after intro
 }
 
 export interface Answer {
@@ -52,7 +54,6 @@ export interface Answer {
 export interface Submission {
   id: string;
   language: Language;
-  path: Path;
-  answers: Answer[]; // includes anchor + branch questions + final rating
+  answers: Answer[];
   submittedAt: string; // ISO timestamp
 }

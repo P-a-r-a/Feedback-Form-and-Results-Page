@@ -7,10 +7,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
 } from "recharts";
 import { Download, Trash2, RefreshCw } from "lucide-react";
 import jsPDF from "jspdf";
@@ -21,7 +17,6 @@ import {
   allQuestions,
   averageRating,
   choiceBreakdown,
-  pathBreakdown,
   ratingBreakdown,
   textAnswers,
   yesNoBreakdown,
@@ -30,8 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { languageLabels } from "@/data/questions";
 
-const PIE_COLORS = ["#5C7A3F", "#C97B4A", "#BFD69A"];
-
 export function ResultsPage() {
   const reportRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -39,14 +32,12 @@ export function ResultsPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const questions = allQuestions();
-
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
     try {
       const data = await getSubmissions();
-      setSubmissions(data);
+      setSubmissions(Array.isArray(data) ? data : []);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Couldn't load responses.");
     } finally {
@@ -57,14 +48,6 @@ export function ResultsPage() {
   useEffect(() => {
     load();
   }, [load]);
-
-  const avg = averageRating(submissions);
-  const ratingRows = ratingBreakdown(submissions);
-  const pathRows = pathBreakdown(submissions);
-
-  const choiceQuestions = questions.filter((q) => q.type === "choice");
-  const yesNoQuestions = questions.filter((q) => q.type === "yesno" && q.id !== "anchor");
-  const textQuestions = questions.filter((q) => q.type === "text");
 
   async function handleDownloadPdf() {
     if (!reportRef.current) return;
@@ -102,11 +85,21 @@ export function ResultsPage() {
 
   async function handleClear() {
     if (confirm("Delete all collected responses? This can't be undone.")) {
-      await clearSubmissions();
-      load();
+      setLoading(true);
+      try {
+        await clearSubmissions();
+        localStorage.removeItem("matcha_feedback_submissions_v1");
+        setSubmissions([]);
+        await load();
+      } catch (err) {
+        alert("Error clearing data.");
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
+  // --- EARLY GUARDS: Prevents premature chart rendering before data is parsed ---
   if (loading) {
     return (
       <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-6 text-center">
@@ -125,7 +118,7 @@ export function ResultsPage() {
     );
   }
 
-  if (submissions.length === 0) {
+  if (!submissions || submissions.length === 0) {
     return (
       <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-6 text-center">
         <h1 className="mb-2 font-display text-2xl text-matcha-900">No responses yet</h1>
@@ -136,6 +129,21 @@ export function ResultsPage() {
       </div>
     );
   }
+
+  // --- SAFE EXECUTION ZONE (Strictly Typed) ---
+  let questions: any[] = [];
+  try {
+    questions = allQuestions() || [];
+  } catch (e) {
+    console.error("Failed parsing allQuestions layout data schema", e);
+  }
+
+  const avg: number = typeof averageRating === "function" ? averageRating(submissions) || 0 : 0;
+  const ratingRows: any[] = typeof ratingBreakdown === "function" ? ratingBreakdown(submissions) || [] : [];
+
+  const choiceQuestions = questions.filter((q) => q && q.type === "choice");
+  const yesNoQuestions = questions.filter((q) => q && q.type === "yesno");
+  const textQuestions = questions.filter((q) => q && q.type === "text");
 
   return (
     <div className="mx-auto min-h-screen max-w-4xl px-6 py-12">
@@ -162,47 +170,34 @@ export function ResultsPage() {
           <h1 className="font-display text-3xl font-medium text-matcha-900">Matcha Tasting Feedback</h1>
           <p className="text-matcha-700">
             {submissions.length} response{submissions.length === 1 ? "" : "s"} collected · average rating{" "}
-            {avg.toFixed(1)} / 5
+            {Number(avg).toFixed(1)} / 5
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <Card className="p-6">
-            <h2 className="mb-4 font-display text-lg text-matcha-900">Overall rating</h2>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={ratingRows}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#DFEAC9" />
-                <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#374B25" }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#374B25" }} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#5C7A3F" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-
-          <Card className="p-6">
-            <h2 className="mb-4 font-display text-lg text-matcha-900">Response sentiment</h2>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={pathRows} dataKey="count" nameKey="label" outerRadius={80} label>
-                  {pathRows.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </div>
+        <Card className="p-6">
+          <h2 className="mb-4 font-display text-lg text-matcha-900">Overall rating distribution</h2>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={ratingRows}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#DFEAC9" />
+              <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#374B25" }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#374B25" }} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#5C7A3F" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
 
         {yesNoQuestions.map((q) => {
-          const rows = yesNoBreakdown(q.id, submissions);
-          if (rows.every((r) => r.count === 0)) return null;
+          let rows: any[] = [];
+          try {
+            rows = yesNoBreakdown(q.id, submissions) || [];
+          } catch (e) {
+            console.error(e);
+          }
           return (
             <Card className="p-6" key={q.id}>
               <h2 className="mb-4 font-display text-lg text-matcha-900">{q.text}</h2>
-              <ResponsiveContainer width="100%" height={180}>
+              <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={rows} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#DFEAC9" />
                   <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: "#374B25" }} />
@@ -216,16 +211,20 @@ export function ResultsPage() {
         })}
 
         {choiceQuestions.map((q) => {
-          const rows = choiceBreakdown(q.id, submissions);
-          if (rows.every((r) => r.count === 0)) return null;
+          let rows: any[] = [];
+          try {
+            rows = choiceBreakdown(q.id, submissions) || [];
+          } catch (e) {
+            console.error(e);
+          }
           return (
             <Card className="p-6" key={q.id}>
               <h2 className="mb-4 font-display text-lg text-matcha-900">{q.text}</h2>
-              <ResponsiveContainer width="100%" height={Math.max(180, rows.length * 50)}>
+              <ResponsiveContainer width="100%" height={Math.max(160, rows.length * 45)}>
                 <BarChart data={rows} layout="vertical" margin={{ left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#DFEAC9" />
                   <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12, fill: "#374B25" }} />
-                  <YAxis type="category" dataKey="label" width={150} tick={{ fontSize: 12, fill: "#374B25" }} />
+                  <YAxis type="category" dataKey="label" width={160} tick={{ fontSize: 12, fill: "#374B25" }} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#A67C52" radius={[0, 6, 6, 0]} />
                 </BarChart>
@@ -235,7 +234,12 @@ export function ResultsPage() {
         })}
 
         {textQuestions.map((q) => {
-          const answers = textAnswers(q.id, submissions);
+          let answers: any[] = [];
+          try {
+            answers = textAnswers(q.id, submissions) || [];
+          } catch (e) {
+            console.error(e);
+          }
           if (answers.length === 0) return null;
           return (
             <Card className="p-6" key={q.id}>
@@ -252,14 +256,13 @@ export function ResultsPage() {
         })}
 
         <Card className="overflow-x-auto p-6">
-          <h2 className="mb-4 font-display text-lg text-matcha-900">Raw responses</h2>
+          <h2 className="mb-4 font-display text-lg text-matcha-900">Raw responses log</h2>
           <table className="w-full min-w-[500px] text-left text-sm">
             <thead>
               <tr className="border-b border-matcha-100 text-matcha-600">
                 <th className="py-2 pr-4 font-mono font-medium">Date</th>
                 <th className="py-2 pr-4 font-mono font-medium">Language</th>
-                <th className="py-2 pr-4 font-mono font-medium">Sentiment</th>
-                <th className="py-2 pr-4 font-mono font-medium">Rating</th>
+                <th className="py-2 pr-4 font-mono font-medium">Overall Rating</th>
               </tr>
             </thead>
             <tbody>
@@ -269,12 +272,9 @@ export function ResultsPage() {
                 .map((s) => (
                   <tr key={s.id} className="border-b border-matcha-50 text-matcha-800">
                     <td className="py-2 pr-4">{new Date(s.submittedAt).toLocaleString()}</td>
-                    <td className="py-2 pr-4">{languageLabels[s.language]}</td>
+                    <td className="py-2 pr-4">{languageLabels[s.language] || s.language}</td>
                     <td className="py-2 pr-4">
-                      {s.path === "A" ? "Positive" : s.path === "B" ? "Negative" : "Neutral"}
-                    </td>
-                    <td className="py-2 pr-4">
-                      {s.answers.find((a) => a.questionId === "final")?.value ?? "-"} / 5
+                      {s.answers?.find((a) => a.questionId === "final")?.value ?? "-"} / 5
                     </td>
                   </tr>
                 ))}

@@ -6,9 +6,26 @@ import { questionSets } from "@/data/questions";
 export function allQuestions(): Question[] {
   const en = questionSets.en;
   const seen = new Set<string>();
-  const list: Question[] = [...en.intro, en.anchor, ...en.pathA, ...en.pathB, ...en.pathC, ...en.final];
+
+  // NOTE: `anchor`/`pathA`/`pathB`/`pathC` are legacy fields from the old
+  // branching flow. The current question set doesn't use them (anchor is
+  // `null`, the paths are empty arrays), but we guard against them here so
+  // this doesn't break again if branching comes back later. Previously
+  // `en.anchor` was spliced in un-spread, so when it was `null` it landed
+  // directly in the array and crashed the `.filter()` below the moment it
+  // tried to read `q.id` off of `null` — which silently zeroed out every
+  // question-specific chart on the results page.
+  const list: Question[] = [
+    ...en.intro,
+    ...(en.anchor ? [en.anchor] : []),
+    ...(en.pathA ?? []),
+    ...(en.pathB ?? []),
+    ...(en.pathC ?? []),
+    ...en.final,
+  ];
+
   return list.filter((q) => {
-    if (seen.has(q.id)) return false;
+    if (!q || seen.has(q.id)) return false;
     seen.add(q.id);
     return true;
   });
@@ -54,16 +71,6 @@ export function ratingBreakdown(submissions: Submission[]): CountRow[] {
     if (n >= 1 && n <= 5) counts[n - 1]++;
   }
   return counts.map((count, i) => ({ label: `${i + 1} ★`, count }));
-}
-
-export function pathBreakdown(submissions: Submission[]): CountRow[] {
-  const counts = { Positive: 0, Negative: 0, Neutral: 0 };
-  for (const sub of submissions) {
-    if (sub.path === "A") counts.Positive++;
-    else if (sub.path === "B") counts.Negative++;
-    else counts.Neutral++;
-  }
-  return Object.entries(counts).map(([label, count]) => ({ label, count }));
 }
 
 export function averageRating(submissions: Submission[]): number {
