@@ -13,7 +13,42 @@ export function MatchaBowlProgress({ percent, label }: Props) {
 
   return (
     <div className="flex flex-col items-center gap-3">
+      <style>{`
+        @keyframes rise {
+          0% {
+            transform: translate(-50%, 0) scale(0.8);
+            opacity: 0;
+          }
+          15% {
+            opacity: 0.6;
+          }
+          50% {
+            transform: translate(-50%, -25px) scale(1.2);
+            opacity: 0.4;
+          }
+          100% {
+            transform: translate(-50%, -50px) scale(1.6);
+            opacity: 0;
+          }
+        }
+        .smoke-wisp {
+          position: absolute;
+          bottom: 74%;
+          left: 50%;
+          width: 12px;
+          height: 28px;
+          background: rgba(129, 152, 67, 0.47);
+          border-radius: 50%;
+          animation: rise 3s infinite ease-in-out;
+          filter: blur(4px); 
+        }
+      `}</style>
+
       <div className="relative h-24 w-24">
+        <div className="smoke-wisp" style={{ animationDelay: "0s", left: "44%" }} />
+        <div className="smoke-wisp" style={{ animationDelay: "0.8s", left: "50%" }} />
+        <div className="smoke-wisp" style={{ animationDelay: "1.6s", left: "56%" }} />
+
         <svg viewBox="0 0 100 100" className="h-full w-full overflow-visible">
           <defs>
             <clipPath id="bowlClip">
@@ -24,25 +59,6 @@ export function MatchaBowlProgress({ percent, label }: Props) {
               <stop offset="100%" stopColor="#5C7A3F" />
             </linearGradient>
           </defs>
-
-          {/* steam wisps */}
-          <path
-            d="M40 22 Q38 16 42 10"
-            stroke="#BFD69A"
-            strokeWidth="2"
-            fill="none"
-            strokeLinecap="round"
-            className="animate-steam origin-bottom opacity-50"
-          />
-          <path
-            d="M58 22 Q60 15 56 8"
-            stroke="#BFD69A"
-            strokeWidth="2"
-            fill="none"
-            strokeLinecap="round"
-            className="animate-steam origin-bottom opacity-40"
-            style={{ animationDelay: "0.6s" }}
-          />
 
           {/* bowl exterior */}
           <path
