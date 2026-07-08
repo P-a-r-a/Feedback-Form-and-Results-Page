@@ -62,7 +62,6 @@ export function FeedbackForm() {
     const submission: Submission = {
       id: makeId(),
       language,
-      path: "C", // Kept safe for database backward compatibility 
       answers: Object.entries(answers).map(([questionId, value]) => ({ questionId, value })),
       submittedAt: new Date().toISOString(),
     };
