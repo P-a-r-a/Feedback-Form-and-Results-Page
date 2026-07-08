@@ -149,7 +149,7 @@ export function ResultsPage() {
     <div className="mx-auto min-h-screen max-w-4xl px-6 py-12">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <span className="font-mono text-xs uppercase tracking-[0.2em] text-bamboo">
-          Company dashboard - not for public link
+          Company dashboard - not for public use
         </span>
         <div className="flex gap-3">
           <Button variant="ghost" onClick={load}>
@@ -167,9 +167,9 @@ export function ResultsPage() {
       <div ref={reportRef} className="space-y-8 rounded-bowl bg-cream p-2">
         <div>
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-bamboo">Results</span>
-          <h1 className="font-display text-3xl font-medium text-matcha-900">Matcha Tasting Feedback</h1>
+          <h1 className="font-display text-3xl font-medium text-matcha-900">Matcha Feedback Results</h1>
           <p className="text-matcha-700">
-            {submissions.length} response{submissions.length === 1 ? "" : "s"} collected · average rating{" "}
+            {submissions.length} response{submissions.length === 1 ? "" : "s"} collected · Average rating{" "}
             {Number(avg).toFixed(1)} / 5
           </p>
         </div>
