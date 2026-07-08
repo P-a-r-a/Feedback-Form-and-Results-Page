@@ -45,8 +45,8 @@ export const questionSets: Record<Language, QuestionSet> = {
       },
       {
         id: "q3_taste_enjoyment",
-        type: "choice", // Modified to choice to support Yes/No/Maybe as explicitly requested
-        text: "Did you enjoy the taste of the matcha sample?",
+        type: "choice", 
+        text: "Did you enjoy the taste of our matcha?",
         options: [
           { value: "yes", label: "Yes" },
           { value: "no", label: "No" },
@@ -69,7 +69,7 @@ export const questionSets: Record<Language, QuestionSet> = {
       {
         id: "q5_preparation",
         type: "choice",
-        text: "How did you prepare your matcha sample at home?",
+        text: "How did you prepare our matcha at home?",
         options: [
           { value: "iced_latte", label: "Iced Latte" },
           { value: "hot_latte", label: "Hot Latte" },
@@ -78,17 +78,7 @@ export const questionSets: Record<Language, QuestionSet> = {
         ],
       },
       {
-        id: "q6_convenience",
-        type: "choice",
-        text: "How would you rate the convenience of making this sachet compared to store-bought matcha?",
-        options: [
-          { value: "much_easier", label: "Much easier to make" },
-          { value: "about_same", label: "About the same" },
-          { value: "more_difficult", label: "More difficult" },
-        ],
-      },
-      {
-        id: "q7_taste_comparison",
+        id: "q6_taste_comparison",
         type: "choice",
         text: "How did the taste of your homemade cup compare to a standard store-bought or cafe matcha?",
         options: [
@@ -98,14 +88,14 @@ export const questionSets: Record<Language, QuestionSet> = {
         ],
       },
       {
-        id: "q8_purchase_intent",
+        id: "q7_purchase_intent",
         type: "yesno",
-        text: "Would you consider buying our matcha sachets for your home routine?",
+        text: "Would you consider buying our matcha?",
       },
       {
-        id: "q9_improvement_suggestions",
+        id: "q8_improvement_suggestions",
         type: "text",
-        text: "What could we have done to make the home sachet experience better for you?",
+        text: "What could we have done to make the matcha experience better for you?",
         optional: true,
       },
     ],
@@ -115,8 +105,14 @@ export const questionSets: Record<Language, QuestionSet> = {
     pathB: [],
     pathC: [],
     final: [
-      { id: "q10_recommend", type: "yesno", text: "Would you recommend our matcha to friends or family?" },
-      { id: "final", type: "stars", text: "How would you rate our matcha overall?" },
+      { id: "q9_recommend", 
+        type: "yesno", 
+        text: "Would you recommend our matcha to friends or family?" 
+      },
+      { id: "final", 
+        type: "stars", 
+        text: "How would you rate our matcha overall?" 
+      },
     ],
   },
 
